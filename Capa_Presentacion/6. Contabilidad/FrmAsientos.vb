@@ -1,0 +1,321 @@
+﻿Imports System.Data
+Imports System.Data.OleDb
+Public Class FrmAsientos
+    'Avanzamos presionando la tecla enter...
+    Private Sub FrmAsientos_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles Me.KeyPress
+        Call Avanzar_Enter(e)
+    End Sub
+    Private Sub FrmAsientos_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+        c_Neg_MnTpoDoc.Get_TpoDoc_Cbo(" and c_anula_reg=0 order by c_codi_doc", CboDoc)
+        c_Neg_MnEmpresa.Get_Empresa_Cbo(" and c_anula_reg=0", CboEmpresa)
+        Call Validar_Permisos()
+    End Sub
+    'Permisos de Usuarios y Accesos...
+    Private Sub Validar_Permisos()
+        With FrmMenu.Dgv01
+            For i = 0 To .RowCount - 1
+                If UCase(.Rows(i).Cells("c_nom_formu").Value.ToString) = UCase(Me.Name) Then
+                    If Val(.Rows(i).Cells("c_add_obj").Value) = 0 Then BtnNuevo.Enabled = False
+                    'If Val(.Rows(i).Cells("c_edit_obj").Value) = 0 Then BtnEdit.Enabled = False
+                    If Val(.Rows(i).Cells("c_del_obj").Value) = 0 Then BtnAnular.Enabled = False
+                    i = .RowCount
+                End If
+            Next
+        End With
+    End Sub
+    Private Sub BtnCerrar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnCerrar.Click
+        Me.Close()
+    End Sub
+    ' Mostramos los documentos '
+    Private Sub btnmostrar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnmostrar.Click
+        c_Neg_TpoCambio.set_ActuMasivoTpoCambio_Save(Fecha_1.Text, Fecha_2.Text)
+        Call Cargar_Documentos()
+    End Sub
+    Private Sub Cargar_Documentos()
+        With c_Neg_Asientos_Cab.get_AsientosCab_Datos(CboDoc.SelectedValue, Fecha_1.Text, Fecha_2.Text)
+            Dgv01.Rows.Clear() : Dgv03.DataSource = Nothing ' : Dgv03.Rows.Clear()
+            If .Rows.Count > 0 Then
+                BtnGrabar.Enabled = True
+                For I = 0 To .Rows.Count - 1
+                    Dgv01.Rows.Add()
+                    Dgv01.Rows(I).Cells("N_Factura").Value = .Rows(I)("N_Factura").ToString
+                    Dgv01.Rows(I).Cells("Csubdia").Value = .Rows(I)("Csubdia").ToString
+                    Dgv01.Rows(I).Cells("Ccompro").Value = .Rows(I)("Ccompro").ToString
+                    Dgv01.Rows(I).Cells("Cfeccom").Value = .Rows(I)("Cfeccom").ToString
+                    Dgv01.Rows(I).Cells("Ccodmon").Value = .Rows(I)("Ccodmon").ToString
+                    Dgv01.Rows(I).Cells("Csitua").Value = .Rows(I)("Csitua").ToString
+                    Dgv01.Rows(I).Cells("Ctipcam").Value = .Rows(I)("Ctipcam").ToString
+                    Dgv01.Rows(I).Cells("Cglosa").Value = .Rows(I)("Cglosa").ToString
+                    Dgv01.Rows(I).Cells("Ctotal").Value = .Rows(I)("Ctotal").ToString
+                    Dgv01.Rows(I).Cells("Ctipo").Value = .Rows(I)("Ctipo").ToString
+                    Dgv01.Rows(I).Cells("Cflag").Value = .Rows(I)("Cflag").ToString
+                    Dgv01.Rows(I).Cells("Cfeccom2").Value = FormatDateTime(.Rows(I)("Cfeccom2").ToString, DateFormat.ShortDate)
+                    If CboDoc.SelectedValue <> "03" And CboDoc.SelectedValue <> "05" Then
+                        With c_Neg_IngComp.get_IngComp_Datos(" And I.c_nro_ing='" & Dgv01.Rows(I).Cells("N_Factura").Value & _
+                                                             "' and I.c_anula_reg=0", "DAT", FrmMenu.TxtCod_Emp.Text)
+                            If .Rows.Count > 0 Then
+                                '  Call Concar_Buscar_Anexos("P", .Rows(0)("c_Ruc_prov").ToString, Strings.Left(.Rows(0)("c_desc_prov").ToString, 40),
+                                ' Strings.Left(.Rows(0)("c_direc_prov").ToString & " " & .Rows(0)("c_dist_prov").ToString, 50), FrmMenu.TxtConcar_Ruta.Text)
+                            End If
+                        End With
+                    End If
+                Next
+                Call Dgv01_SelectionChanged(Nothing, Nothing)
+                Dgv03.DataSource = c_Neg_Asientos_Anexos.get_AsientosCab_Datos(" ")
+            End If
+            lbltot.Text = "Total de Registros " & Dgv01.RowCount
+        End With
+    End Sub
+    'Metodo que nos permite validar la numeracion de comprobantes de pago...
+    Private Sub Concar_Buscar_Anexos(ByVal Tipo_Anexo As String, ByVal Ruc As String, ByVal Cliente As String, ByVal Arefane As String, ByVal Ruta_concar As String)
+        'Validamos que el ruc o dni ingresado sea correcto, y no ingresar cliente que no tengan el dni o el ruc
+        'debidamente ingresados...
+        If Val(Ruc) <> 0 Then
+            Dim x As Integer = 0
+            Dim conn As New OleDb.OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & Ruta_concar & " Extended Properties=dBASE IV;")
+            Dim sql As String = ""
+            conn.Open()
+            Dim Sdata As New OleDbDataAdapter("select*from " & FrmMenu.TxtConcar_Anexo.Text & " Where Avanexo='" & Tipo_Anexo & "' and Trim(Aruc)='" & Ruc & "'", conn)
+            Dim Dts As New DataSet
+            Sdata.Fill(Dts, "Anexos")
+            With Dts.Tables("Anexos")
+                If .Rows.Count = 0 Then
+                    With c_Ent_Asientos_Anexos
+                        .Avanexo = Tipo_Anexo
+                        .Acodane = Ruc
+                        .Adesane = Cliente
+                        .Aruc = Ruc
+                        .Aestado = "V"
+                        .Arefane = Strings.Left(Arefane, 50)
+                        c_Neg_Asientos_Anexos.set_Asientos_anexos_Save(c_Ent_Asientos_Anexos)
+                    End With
+                End If
+            End With
+            'eliminamos variables creadas
+            conn.Dispose()
+            Sdata.Dispose()
+        End If
+    End Sub
+    Private Sub Dgv01_CellContentClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.DataGridViewCellEventArgs) Handles Dgv01.CellContentClick
+
+    End Sub
+
+    Private Sub Dgv01_SelectionChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles Dgv01.SelectionChanged
+        Dgv02.Rows.Clear()
+        With Dgv01
+            If .RowCount > 0 Then
+                Dim Fila As Integer = .CurrentCellAddress.Y
+                With c_Neg_Asientos_Det.get_AsientosDet_Datos(" And D.N_Factura='" & .Rows(Fila).Cells("N_Factura").Value & "' order by Dsecue")
+                    For i = 0 To .Rows.Count - 1
+                        Dgv02.Rows.Add()
+                        Dgv02.Rows(i).Cells("N_Factura_2").Value = .Rows(i)("N_Factura").ToString
+                        Dgv02.Rows(i).Cells("Dsubdia").Value = .Rows(i)("Dsubdia").ToString
+                        Dgv02.Rows(i).Cells("Dcompro").Value = .Rows(i)("Dcompro").ToString
+                        Dgv02.Rows(i).Cells("Dsecue").Value = .Rows(i)("Dsecue").ToString
+                        Dgv02.Rows(i).Cells("Dfeccom").Value = .Rows(i)("Dfeccom").ToString
+                        Dgv02.Rows(i).Cells("Dcuenta").Value = .Rows(i)("Dcuenta").ToString
+                        Dgv02.Rows(i).Cells("Dcodane").Value = .Rows(i)("Dcodane").ToString
+                        Dgv02.Rows(i).Cells("Dencos").Value = .Rows(i)("Dencos").ToString
+                        Dgv02.Rows(i).Cells("Dcodmon").Value = .Rows(i)("Dcodmon").ToString
+                        Dgv02.Rows(i).Cells("Ddh").Value = .Rows(i)("Ddh").ToString
+                        Dgv02.Rows(i).Cells("Dimport").Value = .Rows(i)("Dimport").ToString
+                        Dgv02.Rows(i).Cells("Dtipdoc").Value = .Rows(i)("Dtipdoc").ToString
+                        Dgv02.Rows(i).Cells("Dnumdoc").Value = .Rows(i)("dnumdoc").ToString
+                        Dgv02.Rows(i).Cells("Dfecdoc").Value = .Rows(i)("Dfecdoc").ToString
+                        Dgv02.Rows(i).Cells("Dfecven").Value = .Rows(i)("Dfecven").ToString
+                        Dgv02.Rows(i).Cells("Darea").Value = .Rows(i)("Darea").ToString
+                        Dgv02.Rows(i).Cells("Dflag").Value = .Rows(i)("Dflag").ToString
+                        Dgv02.Rows(i).Cells("Dxglosa").Value = .Rows(i)("Dxglosa").ToString
+                        Dgv02.Rows(i).Cells("Dusimpor").Value = .Rows(i)("Dusimpor").ToString
+                        Dgv02.Rows(i).Cells("Dmnimpor").Value = .Rows(i)("Dmnimpor").ToString
+                        Dgv02.Rows(i).Cells("Dtipcam").Value = .Rows(i)("Dtipcam").ToString
+                        Dgv02.Rows(i).Cells("Dfeccom2").Value = .Rows(i)("Dfeccom2").ToString
+                        Dgv02.Rows(i).Cells("Dfecdoc2").Value = .Rows(i)("Dfecdoc2").ToString
+                        Dgv02.Rows(i).Cells("Dfecven2").Value = .Rows(i)("Dfecven2").ToString
+                        Dgv02.Rows(i).Cells("Danexo").Value = .Rows(i)("Danexo").ToString
+                        Dgv02.Rows(i).Cells("Dtipdor").Value = .Rows(i)("Dtipdor").ToString
+                        Dgv02.Rows(i).Cells("Dnumdor").Value = .Rows(i)("Dnumdor").ToString
+                    Next
+                End With
+            End If
+        End With
+
+    End Sub
+    'Grabar Soles...
+    Private Sub BtnGrabar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnGrabar.Click
+        If Validar_Montos(Dgv01) = True Then
+            If Validar_Cuentas(Dgv01) = True Then
+                If Dgv01.RowCount > 0 Then
+                    Dim F As String = MsgBox("¿Los datos son correctos?...", vbYesNo + vbQuestion, Compañia)
+                    If F = vbYes Then Call Grabar_Concar_Cab_fox(TxtCodConcar.Text & Strings.Left(Dgv01.Rows(Dgv01.CurrentCellAddress.Y).Cells("Cfeccom").Value, 2))
+                End If
+            Else
+                Call Dgv01_SelectionChanged(Nothing, Nothing)
+            End If
+        Else
+            Call Dgv01_SelectionChanged(Nothing, Nothing)
+        End If
+    End Sub
+    'Grabamos registros cabeceras en el concar...
+    Private Sub Grabar_Concar_Cab_fox(ByVal Tabla As String)
+        With Dgv01
+            TxtCorrel.Clear()
+            If .RowCount > 0 Then
+                For i = 0 To .RowCount - 1
+                    ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+                    '=======================================================================================================================================================================
+                    'Buscamos el numero de correlativo...
+                    Call Concar_Numeracion(TxtCodConcar.Text & Strings.Left(.Rows(i).Cells("Cfeccom").Value, 2), .Rows(i).Cells("Csubdia").Value, .Rows(i).Cells("Cfeccom").Value, FrmMenu.TxtConcar_Ruta.Text, TxtCorrel) 'FACTURAS
+                    '=======================================================================================================================================================================
+                    Dim sql As String = "insert into CCC" & Tabla & " (Csubdia,Ccompro,Cfeccom,Ccodmon,Csitua,Ctipcam,Cglosa,Ctotal,Ctipo,Cflag,Cfeccom2,Cdate,Chora,CUser) Values('" &
+                    .Rows(i).Cells("Csubdia").Value & "','" & TxtCorrel.Text & "','" & .Rows(i).Cells("Cfeccom").Value & "','" & .Rows(i).Cells("Ccodmon").Value & "','" &
+                    .Rows(i).Cells("Csitua").Value & "'," & Val(.Rows(i).Cells("Ctipcam").Value) & ",'" & Replace(.Rows(i).Cells("Cglosa").Value, "'", "") & "'," & Val(.Rows(i).Cells("Ctotal").Value) & ",'" &
+                    .Rows(i).Cells("Ctipo").Value & "','" & .Rows(i).Cells("Cflag").Value & "','" & .Rows(i).Cells("Cfeccom2").Value & "','" & FormatDateTime(System.DateTime.Now, DateFormat.ShortDate) &
+                    "','" & FormatDateTime(Date.Now, DateFormat.ShortTime) & "','SIST')"
+                    Dim conn As New OleDb.OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & FrmMenu.TxtConcar_Ruta.Text & " Extended Properties=dBASE IV;")
+                    conn.Open()
+                    Dim cmd As New OleDb.OleDbCommand(sql, conn)
+                    cmd.ExecuteNonQuery()
+                    '==============================================================================================================='
+                    '===================================Actualizamos En la Tabla FActuras Ventas con el Comprobante del Concar============================================================================
+
+                    Dgv01.Rows(i).Cells("Ccompro").Value = TxtCorrel.Text
+                    Dim sql2 As String = ""
+                    c_Neg_Asientos_Cab.set_AsientosCab_Save(.Rows(i).Cells("N_Factura").Value, TxtCorrel.Text, CboDoc.SelectedValue)
+                    .Rows(i).Cells("CCompro").Value = TxtCorrel.Text
+                    '==============================================================================================================='
+                    '==============================================================================================================='
+                    conn.Dispose() 'eliminamos variables...
+
+                    Call Grabar_Concar_Det_Fox(Tabla, i)
+                Next 'Grabamos registros...
+                Call Grabar_Concar_Anexos() 'Grabamos los anexos...
+                BtnGrabar.Enabled = False
+                BtnAnular.Enabled = False
+                MsgBox("Los documentos fueron grabados Correctamente en el Concar...")
+            Else
+                MsgBox("No existen Registros que grabar en el concar", MsgBoxStyle.Critical)
+            End If
+        End With
+    End Sub
+    'Grabamos en la cabecera de los archivos del concar...
+    Private Sub Grabar_Concar_Det_Fox(ByVal Tabla As String, ByVal Fila As Integer)
+        Dgv01.Rows(Fila).Selected = True
+        Dgv01.CurrentCell = Dgv01(Dgv01.CurrentCell.ColumnIndex, Fila)
+        Dgv01_SelectionChanged(Nothing, Nothing)
+        With Dgv02
+            If .RowCount > 0 Then
+                For i = 0 To .RowCount - 1
+                    Dim sql As String = ""
+                    'validamos si fecha de vencimiento ha sido ingresada.
+                    If Len(.Rows(i).Cells("Dfecven2").Value.ToString) > 0 Then 'Registro si contiene fecha de vencimiento...
+                        sql = "insert into CCD" & Tabla & " (Dsubdia,Dcompro,Dsecue,Dfeccom,Dcuenta,Dcodane,Dcodmon,Ddh,Dimport,Dtipdoc,Dnumdoc,Dfecdoc,Dfecven,Darea," &
+                        "Dflag,Ddate,Dxglosa,Dusimpor,Dmnimpor,Dfeccom2,Dfecdoc2,Dfecven2,Dvanexo,Dcencos,Dtipdor,Dnumdor) values('" & .Rows(i).Cells("Dsubdia").Value & "','" & TxtCorrel.Text & "','" & .Rows(i).Cells("Dsecue").Value & "','" & .Rows(i).Cells("Dfeccom").Value & "','" & Trim(.Rows(i).Cells("Dcuenta").Value) & "','" &
+                        .Rows(i).Cells("Dcodane").Value & "','" & .Rows(i).Cells("Dcodmon").Value & "','" &
+                        .Rows(i).Cells("Ddh").Value & "'," & Val(.Rows(i).Cells("Dimport").Value.ToString) & ",'" & .Rows(i).Cells("Dtipdoc").Value & "','" & .Rows(i).Cells("Dnumdoc").Value & "','" &
+                        .Rows(i).Cells("Dfecdoc").Value & "','" & .Rows(i).Cells("Dfecven").Value & "','" & .Rows(i).Cells("Darea").Value & "','" & .Rows(i).Cells("Dflag").Value & "','" & FormatDateTime(System.DateTime.Now, DateFormat.ShortDate) & "','" &
+                        Replace(.Rows(i).Cells("Dxglosa").Value, "'", "") & "'," & Val(.Rows(i).Cells("Dusimpor").Value.ToString) & "," & Val(.Rows(i).Cells("Dmnimpor").Value.ToString) & ",'" & FormatDateTime(.Rows(i).Cells("Dfeccom2").Value, DateFormat.ShortDate) & "','" &
+                        FormatDateTime(.Rows(i).Cells("Dfecdoc2").Value, DateFormat.ShortDate) & "','" & FormatDateTime(.Rows(i).Cells("Dfecven2").Value, DateFormat.ShortDate) & "','" & .Rows(i).Cells("Danexo").Value & "','" & .Rows(i).Cells("Dencos").Value &
+                        "','" & .Rows(i).Cells("Dtipdor").Value & "','" & .Rows(i).Cells("Dnumdor").Value & "')"
+                    Else 'Registro no contiene fecha de vencimiento
+                        sql = "insert into CCD" & Tabla & " (Dsubdia,Dcompro,Dsecue,Dfeccom,Dcuenta,Dcodane,Dcodmon,Ddh,Dimport,Dtipdoc,Dnumdoc,Dfecdoc,Dfecven,Darea," &
+                        "Dflag,Ddate,Dxglosa,Dusimpor,Dmnimpor,Dfeccom2,Dfecdoc2,Dvanexo,Dcencos,Dtipdor,Dnumdor) values('" & .Rows(i).Cells("Dsubdia").Value & "','" & TxtCorrel.Text & "','" & .Rows(i).Cells("Dsecue").Value & "','" & .Rows(i).Cells("Dfeccom").Value & "','" & Trim(.Rows(i).Cells("Dcuenta").Value) & "','" &
+                        .Rows(i).Cells("Dcodane").Value & "','" & .Rows(i).Cells("Dcodmon").Value & "','" &
+                        .Rows(i).Cells("Ddh").Value & "'," & Val(.Rows(i).Cells("Dimport").Value.ToString) & ",'" & .Rows(i).Cells("Dtipdoc").Value & "','" & .Rows(i).Cells("Dnumdoc").Value & "','" &
+                        .Rows(i).Cells("Dfecdoc").Value & "','" & .Rows(i).Cells("Dfecven").Value & "','" & .Rows(i).Cells("Darea").Value & "','" & .Rows(i).Cells("Dflag").Value & "','" & FormatDateTime(System.DateTime.Now, DateFormat.ShortDate) & "','" &
+                        Replace(.Rows(i).Cells("Dxglosa").Value, "'", "") & "'," & Val(.Rows(i).Cells("Dusimpor").Value.ToString) & "," & Val(.Rows(i).Cells("Dmnimpor").Value.ToString) & ",'" & FormatDateTime(.Rows(i).Cells("Dfeccom2").Value, DateFormat.ShortDate) & "','" &
+                         FormatDateTime(.Rows(i).Cells("Dfecdoc2").Value, DateFormat.ShortDate) & "','" & .Rows(i).Cells("Danexo").Value & "','" & .Rows(i).Cells("Dencos").Value & "','" & .Rows(i).Cells("Dtipdor").Value & "','" & .Rows(i).Cells("Dnumdor").Value & "')"
+                    End If
+                    Dim conn As New OleDb.OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & FrmMenu.TxtConcar_Ruta.Text & " Extended Properties=dBASE IV;")
+                    conn.Open()
+                    Dim cmd As New OleDb.OleDbCommand(sql, conn)
+                    cmd.ExecuteNonQuery() 'eliminamos variables...
+                    conn.Dispose()
+                    cmd.Dispose()
+                Next
+            End If
+        End With
+    End Sub
+    'Buscamos ultima numeracion del concar...
+    Private Sub Buscar_Solo_Numeracion(ByVal N_Factura As Integer)
+        Dim conex As New OleDbConnection(FrmMenu.TxtConcar_Ruta.Text)
+        Dim data As New OleDbDataAdapter("select*from Concar_Fac_Cab Where N_Factura=" & N_Factura, conex)
+        Dim Dts As New DataSet
+        data.Fill(Dts, "Correl")
+        With Dts.Tables("Correl")
+            TxtCorrel.Clear()
+            If .Rows.Count > 0 Then TxtCorrel.Text = .Rows(0)("Ccompro").ToString
+        End With
+    End Sub
+    'Seleccionamos la empresa...
+    Private Sub CboEmpresa_SelectedIndexChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CboEmpresa.SelectedIndexChanged
+        If CboEmpresa.SelectedIndex > -1 Then
+            On Error Resume Next
+            With c_Neg_MnEmpresa.get_EmpConcar_Datos(" and c_codi_emp='" & CboEmpresa.SelectedValue.ToString() & "'", "DAT")
+                If .Rows.Count > 0 Then
+                    TxtCodConcar.Text = .Rows(0)("c_cod_concar").ToString
+                    TxtAnexo.Text = .Rows(0)("c_anexo_concar").ToString
+                    TxtAnexoDet.Text = .Rows(0)("c_anexodet_concar").ToString
+                End If
+            End With
+        End If
+    End Sub
+    'Anulamos comprobante...
+    Private Sub BtnAnular_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnAnular.Click
+        With Dgv01
+            If .RowCount > 0 Then
+                Dim f As String = MsgBox("¿Desea quitar el Documento Seleccionado ?", MsgBoxStyle.YesNo + MsgBoxStyle.Critical)
+                If f = vbYes Then
+                    Dim Fila As Integer = .CurrentCellAddress.Y
+                    Dim sql As String = ""
+                    'sacamos al documentos que no deseamos cargar al concar...
+                    c_Neg_Asientos_Cab.set_AsientosCab_Save(.Rows(Fila).Cells("N_Factura").Value, 0, CboDoc.SelectedValue)
+                    .Rows.RemoveAt(Fila)
+                    MsgBox("El documento ya no podra ser cargado en el concar, el retiro se realizo Correctamente...", MsgBoxStyle.Information)
+                End If
+            End If
+        End With
+    End Sub
+    'Grabamos en la cabecera de los archivos del concar...
+    Private Sub Grabar_Concar_Anexos()
+        With Dgv03
+            For i = 0 To .RowCount - 1
+                Call Buscar_Valor_Tablas_Concar("select*from " & FrmMenu.TxtConcar_Anexo.Text & " where Trim(Acodane)='" & .Rows(i).Cells("Acodane").Value & "'", TxtVar, FrmMenu.TxtConcar_Ruta.Text)
+                'Validamos si existen Anexos...
+                If Val(TxtVar.Text) = 0 Then
+                    Dim sql As String = "insert into " & FrmMenu.TxtConcar_Anexo.Text & " (Avanexo,Acodane,Adesane,Aruc,Aestado,Adate,Ahora,Arefane) values('" & .Rows(i).Cells("Avanexo").Value & "','" & _
+                    .Rows(i).Cells("Acodane").Value & "','" & .Rows(i).Cells("Adesane").Value & "','" & _
+                    .Rows(i).Cells("Aruc").Value & "','" & .Rows(i).Cells("Aestado").Value & "','" & FormatDateTime(System.DateTime.Now, DateFormat.ShortDate) & "','" & _
+                    FormatDateTime(System.DateTime.Now, DateFormat.ShortTime) & "','" & .Rows(i).Cells("Arefane").Value & "')"
+                    Dim conn As New OleDb.OleDbConnection("Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & FrmMenu.TxtConcar_Ruta.Text & " Extended Properties=dBASE IV;")
+                    conn.Open()
+                    Dim cmd As New OleDb.OleDbCommand(sql, conn)
+                    cmd.ExecuteNonQuery()
+                    ''''''''''''''''''''''''''''''''''Detalles de Anexo CAOXX.dbf
+                    'Grabamos en detalles de Anexoo
+
+
+                    'Validamos el tipo de cliente
+                    Dim Atiptra As String
+                    If Strings.Left(.Rows(i).Cells("Acodane").Value, 2) = "10" Then
+                        Atiptra = "N"
+                    Else
+                        Atiptra = "J"
+                    End If
+
+                    sql = "Insert into " & FrmMenu.TxtConcar_AnexoDet.Text & " (Avanexo,Acodane,Afeccre,Atiptra,Adocide,Anumide,Atippro) values('C','" & .Rows(i).Cells("Acodane").Value & "','" & FormatDateTime(System.DateTime.Now, DateFormat.ShortDate) & "','" & Atiptra & _
+                    "','6','" & .Rows(i).Cells("Acodane").Value & "','N')"
+                    cmd = New OleDb.OleDbCommand(sql, conn)
+                    cmd.ExecuteNonQuery()
+
+                    conn.Dispose()
+                    cmd.Dispose()
+                End If
+            Next
+        End With
+    End Sub
+
+    Private Sub BtnNuevo_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnNuevo.Click
+        Dgv01.Rows.Clear() : Dgv02.Rows.Clear() : Dgv03.DataSource = Nothing : lbltot.Text = "Total de Registros 0"
+    End Sub
+End Class
