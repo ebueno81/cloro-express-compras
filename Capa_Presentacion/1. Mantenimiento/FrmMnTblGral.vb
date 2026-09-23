@@ -1,4 +1,8 @@
-﻿Public Class FrmMnTblGral
+﻿Imports Capa_Negocios
+
+Public Class FrmMnTblGral
+
+    Dim negGiroNegocio As New Neg_MnGiroNegocio
 
     Private Sub FrmTblGral_KeyDown(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles Me.KeyDown
         If e.KeyCode = Keys.Escape Then Me.Close()
@@ -7,11 +11,20 @@
     Private Sub FrmTblGral_KeyPress(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyPressEventArgs) Handles Me.KeyPress
         Call Avanzar_Enter(e)
     End Sub
+
     Private Sub FrmTblGral_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
+
         Me.Location = New Point(60, 60)
+
+        'Cargar giros
+        negGiroNegocio.Get_GiroNegocio_Cbo(CboGiro)
+
         Call Cargar_Grid()
+
         Call Validar_Permiso(Me.Name, BtnNuevo, BtnEdi, BtnEliminar)
+
     End Sub
+
     Public Sub Cargar_Grid()
         Dgv01.DataSource = c_Neg_MnTblGral.get_TblGral_Datos(" order by c_codi_tg ", "DGV")
         With Dgv01
@@ -20,9 +33,11 @@
             .Columns("Codigo").HeaderCell.Style.ForeColor = Color.Blue
             .Columns("Codigo").DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
 
-            .Columns("Tabla General").Width = 400
+            .Columns("Tabla General").Width = 300
+            .Columns("Giro").Width = 140
 
             .Columns("c_anula_reg").Visible = False
+            .Columns("c_codi_giro").Visible = False
             For i = 0 To .RowCount - 1
                 If Val(.Rows(i).Cells("c_anula_reg").Value) = 1 Then
                     .Rows(i).DefaultCellStyle.BackColor = Color.Gainsboro
@@ -37,6 +52,7 @@
             .c_desc_tg = TxtDesc.Text
             .c_usuario = FrmMenu.lblusuario.Text
             .copcion = cOpcion
+            .c_codi_giro = CboGiro.SelectedValue
             c_Neg_MnTblGral.set_TblGral_Save(c_Ent_MnTblGral)
             Call Cargar_Grid()
         End With
@@ -98,6 +114,7 @@
                             Call Nuevo_Ingreso()
                             TxtCod.Text = Dgv01.Rows(fila).Cells("Codigo").Value
                             TxtDesc.Text = Dgv01.Rows(fila).Cells("Tabla General").Value
+                            CboGiro.SelectedValue = Dgv01.Rows(fila).Cells("c_codi_giro").Value
                         Else
                             MsgBox(" Registro esta eliminado...", vbCritical, Compañia)
                         End If
@@ -133,7 +150,7 @@
     End Sub
     Private Sub Cancelar_Ingreso()
         With Dgv01
-            .Size = New Size(466, 246)
+            .Size = New Size(538, 245)
             .Location = New Point(1, 72)
         End With
         BtnCerrar.Text = "&Cerrar" : Pan02.Enabled = False : Pan02.Enabled = True
@@ -143,7 +160,7 @@
         BtnGrabar.Enabled = True : Pan02.Enabled = False : Pan02.Enabled = False
         TxtCod.Clear() : TxtDesc.Clear() : BtnCerrar.Text = "Cancelar"
         With Dgv01
-            .Size = New Size(466, 223)
+            .Size = New Size(538, 218)
             .Location = New Point(1, 95)
             TxtDesc.Focus()
         End With

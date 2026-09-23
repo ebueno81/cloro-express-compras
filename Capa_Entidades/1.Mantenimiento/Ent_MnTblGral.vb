@@ -6,6 +6,7 @@
 
     Private _copcion As String
 
+
     Public Property c_codi_tg() As String
         Get
             Return _c_codi_tg
@@ -39,4 +40,13 @@
         End Set
     End Property
 
+    Private _c_codi_giro As Integer?
+    Public Property c_codi_giro As Integer?
+        Get
+            Return _c_codi_giro
+        End Get
+        Set(ByVal value As Integer?)
+            _c_codi_giro = value
+        End Set
+    End Property
 End Class

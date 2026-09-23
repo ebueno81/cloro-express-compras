@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="1. Mantenimiento\Neg_MnFamilia.vb" />
+    <Compile Include="1. Mantenimiento\Neg_MnGiroNegocio.vb" />
     <Compile Include="1. Mantenimiento\Neg_MnLinea.vb" />
     <Compile Include="1. Mantenimiento\Neg_MnPresenta.vb" />
     <Compile Include="1. Mantenimiento\Neg_MnProveDet.vb" />

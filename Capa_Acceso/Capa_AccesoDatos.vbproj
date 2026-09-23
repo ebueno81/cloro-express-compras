@@ -72,6 +72,7 @@
     <Compile Include="1. Mantenimiento\Cls_MnColores.vb" />
     <Compile Include="1. Mantenimiento\Cls_MnEmpresa.vb" />
     <Compile Include="1. Mantenimiento\Cls_MnFamilia.vb" />
+    <Compile Include="1. Mantenimiento\Cls_MnGiroNegocio.vb" />
     <Compile Include="1. Mantenimiento\Cls_MnIgv.vb" />
     <Compile Include="1. Mantenimiento\Cls_MnLinea.vb" />
     <Compile Include="1. Mantenimiento\Cls_MnMtMov.vb" />

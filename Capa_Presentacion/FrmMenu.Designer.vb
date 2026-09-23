@@ -144,7 +144,7 @@ Partial Class FrmMenu
         Me.TxtConcar_Plan = New System.Windows.Forms.TextBox()
         Me.TxtConcar_AnexoDet = New System.Windows.Forms.TextBox()
         Me.TxtConcar_Anexo = New System.Windows.Forms.TextBox()
-        Me.SkinEngine1 = New Sunisoft.IrisSkin.SkinEngine(CType(Me, System.ComponentModel.Component))
+
         Me.TxtZoom = New System.Windows.Forms.TextBox()
         Me.ChkAdmin = New System.Windows.Forms.CheckBox()
         Me.ChkTransforma = New System.Windows.Forms.CheckBox()
@@ -1018,13 +1018,7 @@ Partial Class FrmMenu
         Me.TxtConcar_Anexo.Size = New System.Drawing.Size(148, 21)
         Me.TxtConcar_Anexo.TabIndex = 48
         Me.TxtConcar_Anexo.Visible = False
-        '
-        'SkinEngine1
-        '
-        Me.SkinEngine1.SerialNumber = "U4N2UjLguUZs33UR+Vy47JAZ81t2fjIFvut28vc5oHiVeivGb/NZMA=="
-        Me.SkinEngine1.SkinFile = Nothing
-        Me.SkinEngine1.SkinStreamMain = CType(resources.GetObject("SkinEngine1.SkinStreamMain"), System.IO.Stream)
-        '
+
         'TxtZoom
         '
         Me.TxtZoom.Location = New System.Drawing.Point(115, 401)
@@ -1208,7 +1202,7 @@ Partial Class FrmMenu
     Friend WithEvents TxtConcar_AnexoDet As System.Windows.Forms.TextBox
     Friend WithEvents TxtConcar_Anexo As System.Windows.Forms.TextBox
     Friend WithEvents MnuOpeLeasing As System.Windows.Forms.ToolStripMenuItem
-    Friend WithEvents SkinEngine1 As Sunisoft.IrisSkin.SkinEngine
+
     Friend WithEvents ToolStripMenuItem2 As System.Windows.Forms.ToolStripSeparator
     Friend WithEvents MnuOpeDuas As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents ToolStripMenuItem3 As System.Windows.Forms.ToolStripSeparator

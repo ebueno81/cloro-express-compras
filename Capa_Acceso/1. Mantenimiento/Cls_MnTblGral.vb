@@ -1,5 +1,4 @@
-﻿Imports System.Data
-Imports System.Data.OleDb
+﻿Imports System.Data.OleDb
 Imports Capa_Entidades
 Imports System.Windows.Forms
 
@@ -21,6 +20,7 @@ Public Class Cls_MnTblGral
             cmd.Parameters.Add("@c_desc_cd", OleDbType.VarChar, 50).Value = ent.c_desc_tg
             cmd.Parameters.Add("@c_usuario", OleDbType.VarChar, 10).Value = ent.c_usuario
             cmd.Parameters.Add("@copcion", OleDbType.VarChar, 3).Value = ent.copcion
+            cmd.Parameters.Add("@c_codi_giro", OleDbType.Integer).Value = ent.c_codi_giro
 
             If cmd.ExecuteNonQuery() > 0 Then
                 Return True

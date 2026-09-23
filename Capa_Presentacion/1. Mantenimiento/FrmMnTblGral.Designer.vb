@@ -40,6 +40,7 @@ Partial Class FrmMnTblGral
         Me.Label2 = New System.Windows.Forms.Label()
         Me.Panel3 = New System.Windows.Forms.Panel()
         Me.BtnGrabar = New System.Windows.Forms.Button()
+        Me.CboGiro = New System.Windows.Forms.ComboBox()
         CType(Me.Dgv01, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Pan02.SuspendLayout()
         Me.Panel2.SuspendLayout()
@@ -53,7 +54,7 @@ Partial Class FrmMnTblGral
         Me.BtnFamilia.Font = New System.Drawing.Font("Tahoma", 9.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.BtnFamilia.Image = CType(resources.GetObject("BtnFamilia.Image"), System.Drawing.Image)
         Me.BtnFamilia.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.BtnFamilia.Location = New System.Drawing.Point(381, 21)
+        Me.BtnFamilia.Location = New System.Drawing.Point(447, 21)
         Me.BtnFamilia.Name = "BtnFamilia"
         Me.BtnFamilia.Size = New System.Drawing.Size(80, 23)
         Me.BtnFamilia.TabIndex = 160
@@ -96,7 +97,7 @@ Partial Class FrmMnTblGral
         Me.Label22.ForeColor = System.Drawing.Color.White
         Me.Label22.Location = New System.Drawing.Point(1, 51)
         Me.Label22.Name = "Label22"
-        Me.Label22.Size = New System.Drawing.Size(467, 21)
+        Me.Label22.Size = New System.Drawing.Size(538, 21)
         Me.Label22.TabIndex = 165
         Me.Label22.Text = "Mantenimiento Tabla General"
         Me.Label22.TextAlign = System.Drawing.ContentAlignment.MiddleCenter
@@ -114,15 +115,15 @@ Partial Class FrmMnTblGral
         Me.Dgv01.ColumnHeadersDefaultCellStyle = DataGridViewCellStyle1
         Me.Dgv01.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.Dgv01.EnableHeadersVisualStyles = False
-        Me.Dgv01.Location = New System.Drawing.Point(1, 72)
+        Me.Dgv01.Location = New System.Drawing.Point(1, 73)
         Me.Dgv01.Name = "Dgv01"
         Me.Dgv01.ReadOnly = True
         Me.Dgv01.RowHeadersWidth = 15
         DataGridViewCellStyle2.Font = New System.Drawing.Font("Arial", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.Dgv01.RowsDefaultCellStyle = DataGridViewCellStyle2
         Me.Dgv01.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect
-        Me.Dgv01.Size = New System.Drawing.Size(466, 246)
-        Me.Dgv01.TabIndex = 0
+        Me.Dgv01.Size = New System.Drawing.Size(538, 245)
+        Me.Dgv01.TabIndex = 4
         '
         'BtnCerrar
         '
@@ -145,7 +146,7 @@ Partial Class FrmMnTblGral
         Me.TxtCod.Location = New System.Drawing.Point(21, 73)
         Me.TxtCod.Name = "TxtCod"
         Me.TxtCod.Size = New System.Drawing.Size(45, 21)
-        Me.TxtCod.TabIndex = 0
+        Me.TxtCod.TabIndex = 1
         Me.TxtCod.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'TxtDesc
@@ -154,8 +155,8 @@ Partial Class FrmMnTblGral
         Me.TxtDesc.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper
         Me.TxtDesc.Location = New System.Drawing.Point(67, 73)
         Me.TxtDesc.Name = "TxtDesc"
-        Me.TxtDesc.Size = New System.Drawing.Size(381, 21)
-        Me.TxtDesc.TabIndex = 1
+        Me.TxtDesc.Size = New System.Drawing.Size(362, 21)
+        Me.TxtDesc.TabIndex = 2
         '
         'Pan02
         '
@@ -166,7 +167,7 @@ Partial Class FrmMnTblGral
         Me.Pan02.Location = New System.Drawing.Point(1, 319)
         Me.Pan02.Name = "Pan02"
         Me.Pan02.Size = New System.Drawing.Size(275, 30)
-        Me.Pan02.TabIndex = 2
+        Me.Pan02.TabIndex = 0
         '
         'BtnEdi
         '
@@ -190,7 +191,7 @@ Partial Class FrmMnTblGral
         Me.Panel2.Controls.Add(Me.BtnFamilia)
         Me.Panel2.Location = New System.Drawing.Point(0, 0)
         Me.Panel2.Name = "Panel2"
-        Me.Panel2.Size = New System.Drawing.Size(468, 51)
+        Me.Panel2.Size = New System.Drawing.Size(539, 51)
         Me.Panel2.TabIndex = 167
         '
         'Label4
@@ -219,10 +220,10 @@ Partial Class FrmMnTblGral
         Me.Panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.Panel3.Controls.Add(Me.BtnGrabar)
         Me.Panel3.Controls.Add(Me.BtnCerrar)
-        Me.Panel3.Location = New System.Drawing.Point(294, 319)
+        Me.Panel3.Location = New System.Drawing.Point(365, 319)
         Me.Panel3.Name = "Panel3"
         Me.Panel3.Size = New System.Drawing.Size(174, 30)
-        Me.Panel3.TabIndex = 168
+        Me.Panel3.TabIndex = 3
         '
         'BtnGrabar
         '
@@ -239,13 +240,25 @@ Partial Class FrmMnTblGral
         Me.BtnGrabar.Text = "Grabar"
         Me.BtnGrabar.UseVisualStyleBackColor = False
         '
+        'CboGiro
+        '
+        Me.CboGiro.BackColor = System.Drawing.Color.FromArgb(CType(CType(224, Byte), Integer), CType(CType(224, Byte), Integer), CType(CType(224, Byte), Integer))
+        Me.CboGiro.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.CboGiro.FlatStyle = System.Windows.Forms.FlatStyle.Popup
+        Me.CboGiro.FormattingEnabled = True
+        Me.CboGiro.Location = New System.Drawing.Point(431, 73)
+        Me.CboGiro.Name = "CboGiro"
+        Me.CboGiro.Size = New System.Drawing.Size(98, 21)
+        Me.CboGiro.TabIndex = 3
+        '
         'FrmMnTblGral
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.Color.White
-        Me.ClientSize = New System.Drawing.Size(469, 350)
+        Me.ClientSize = New System.Drawing.Size(541, 350)
         Me.Controls.Add(Me.Dgv01)
+        Me.Controls.Add(Me.CboGiro)
         Me.Controls.Add(Me.Panel3)
         Me.Controls.Add(Me.Panel2)
         Me.Controls.Add(Me.Pan02)
@@ -282,4 +295,5 @@ Partial Class FrmMnTblGral
     Friend WithEvents BtnEdi As System.Windows.Forms.Button
     Friend WithEvents Panel3 As System.Windows.Forms.Panel
     Friend WithEvents BtnGrabar As System.Windows.Forms.Button
+    Friend WithEvents CboGiro As ComboBox
 End Class
