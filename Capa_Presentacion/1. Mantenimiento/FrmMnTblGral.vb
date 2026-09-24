@@ -133,16 +133,20 @@ Public Class FrmMnTblGral
     'Grabamos Registro
     Private Sub BtnGrabar_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles BtnGrabar.Click
         If Len(TxtDesc.Text) > 0 Then
-            Call Grabar_TblGral("ADD")
-            Call Cancelar_Ingreso() : BtnNuevo.Focus()
-            MsgBox("Registro se Grabo correctamente...", MsgBoxStyle.Exclamation)
+            If CboGiro.SelectedIndex > -1 Then
+                Call Grabar_TblGral("ADD")
+                Call Cancelar_Ingreso() : BtnNuevo.Focus()
+                MsgBox("Registro se Grabo correctamente...", MsgBoxStyle.Exclamation)
+            Else
+                MsgBox("Falta seleccionar el giro...", vbCritical, Compañia)
+            End If
         Else
             MsgBox("Falta ingresar en nombre de la Tabla General...", vbCritical, Compañia)
         End If
     End Sub
 
     Private Sub TxtDesc_KeyDown(ByVal sender As Object, ByVal e As System.Windows.Forms.KeyEventArgs) Handles TxtDesc.KeyDown
-        If e.KeyCode = Keys.Enter Then Call BtnGrabar_Click(Nothing, Nothing)
+
     End Sub
 
     Private Sub TxtDesc_TextChanged(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TxtDesc.TextChanged

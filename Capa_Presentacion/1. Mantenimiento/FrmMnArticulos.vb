@@ -435,6 +435,7 @@ Public Class FrmMnArticulos
         Call Grabar_ArtPrecios() : BtnGrabar.Enabled = False : Call BtnMostrar_Click(Nothing, Nothing)
         If FrmMnSCaidas.Visible = True Then
             FrmMnSCaidas.Cargar_Grid()
+            Me.Close()
         End If
         MsgBox("Registro se grabo correctamente...", vbInformation, Compañia)
     End Sub
