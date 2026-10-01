@@ -156,6 +156,7 @@ Public Class FrmMnTblGral
         With Dgv01
             .Size = New Size(538, 245)
             .Location = New Point(1, 72)
+            .Enabled = True
         End With
         BtnCerrar.Text = "&Cerrar" : Pan02.Enabled = False : Pan02.Enabled = True
         Dgv01.Focus() : BtnGrabar.Enabled = False : Pan02.Enabled = True
@@ -167,6 +168,7 @@ Public Class FrmMnTblGral
             .Size = New Size(538, 218)
             .Location = New Point(1, 95)
             TxtDesc.Focus()
+            .Enabled = False
         End With
     End Sub
 
